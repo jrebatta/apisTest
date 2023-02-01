@@ -48,11 +48,11 @@
         | url      | responseMessage |
         | /booking | 200             |
 
-    @TEST5
-    Scenario Outline: Obtener id booking por nombre y apellido
-      Given Obtener id booking "<url>" por nombre y apellido
+    @TEST6
+    Scenario Outline: Actualizar booking por id
+      Given Obtener llamada post a "<url>" con id y actualizar "<firstname>" y "<lastname>"
       When se valida el codigo de respuesta"<responseMessage>"
-      Then se obtiene el id y se valida con el obtenido previamente
+      Then se valida que el "<firstname>" y "<lastname>" hayan cambiado
       Examples:
-        | url      | responseMessage |
-        | /booking | 200             |
+        | url      | responseMessage | firstname | lastname  |
+        | /booking | 200             | James     | Rodriguez |

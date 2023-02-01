@@ -17,6 +17,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class StepsYape extends Excel {
@@ -30,6 +32,22 @@ public class StepsYape extends Excel {
     @Before
     public void before(Scenario scenarioVal) {
         this.scenario = scenarioVal;
+    }
+
+    public Map<String, String> defaultHeaders(){
+        Map<String, String> dHeaders = new HashMap<String, String>();
+        dHeaders.put("Content-Type", "application/json");
+
+        return dHeaders;
+    }
+
+    public Map<String, String> tokentHeaders() throws IOException {
+        Map<String, String> tHeaders = new HashMap<String, String>();
+        tHeaders.put("Content-Type", "application/json");
+        tHeaders.put("Accept", "application/json");
+        tHeaders.put("Cookie", "token="+getCellValue("Hoja1",1,0));
+
+        return tHeaders;
     }
 
 
@@ -60,7 +78,7 @@ public class StepsYape extends Excel {
     @Given("Obtener llamada a {string} con {string} y {string}")
     public void obtenerLlamadaAConY(String url, String user, String pass) throws URISyntaxException {
         RestAssured.baseURI = BASE_URL;
-        RequestSpecification req = RestAssured.given().headers("Content-Type","application/json").log().all().
+        RequestSpecification req = RestAssured.given().headers(defaultHeaders()).log().all().
                 body("{ \"username\" : \""+user+ "\", " +
                         "\"password\" : \""+pass+"\"}");
         response = req.when().post(new URI(url));
@@ -83,7 +101,7 @@ public class StepsYape extends Excel {
     @Given("Obtener llamada a {string}")
     public void obtenerLlamadaA(String url) throws URISyntaxException {
         RestAssured.baseURI = BASE_URL;
-        RequestSpecification req = RestAssured.given().headers("Content-Type","application/json").log().all();
+        RequestSpecification req = RestAssured.given().headers(defaultHeaders()).log().all();
         response = req.when().get(new URI(url));
     }
 
@@ -100,7 +118,7 @@ public class StepsYape extends Excel {
     @Given("crear bookin {string} con datos {string} {string} {string} {string} {string} {string} {string}")
     public void crearBookinConDatos(String url, String firstname, String lastname, String totalprice, String depositpaid, String checkin, String checkout, String additionalneeds) throws URISyntaxException {
         RestAssured.baseURI = BASE_URL;
-        RequestSpecification req = RestAssured.given().headers("Content-Type","application/json").log().all().
+        RequestSpecification req = RestAssured.given().headers(defaultHeaders()).log().all().
                 body("{ \"firstname\" : \""+firstname+ "\", " +
                         "\"lastname\" :  \""+lastname+"\","+
                         "\"totalprice\" : \""+totalprice+"\","+
@@ -132,7 +150,7 @@ public class StepsYape extends Excel {
         String id = getCellValue("Hoja1",1,1);
         url = url+"/"+id;
         System.out.println(url);
-        RequestSpecification req = RestAssured.given().headers("Content-Type","application/json").log().all();
+        RequestSpecification req = RestAssured.given().headers(defaultHeaders()).log().all();
         response = req.when().get(new URI(url));
 
     }
@@ -188,8 +206,29 @@ public class StepsYape extends Excel {
         String nombre = getCellValue("Hoja1",1,2);
         String apellido = getCellValue("Hoja1",1,3);
         url = url+"/?firstname="+nombre+"&lastname="+apellido;
-        RequestSpecification req = RestAssured.given().headers("Content-Type","application/json").log().all();
+        RequestSpecification req = RestAssured.given().headers(defaultHeaders()).log().all();
         response = req.when().get(new URI(url));
+    }
+
+    @Given("Obtener llamada post a {string} con id y actualizar {string} y {string}")
+    public void obtenerLlamadaPostAConIdYActualizarY(String url, String firstname, String lastname) throws IOException, URISyntaxException {
+        RestAssured.baseURI = BASE_URL;
+        String id = getCellValue("Hoja1",1,1);
+        url = url+"/"+id;
+        System.out.println(url);
+        RequestSpecification req = RestAssured.given().headers(tokentHeaders()).
+                body("{ \"firstname\" : \""+firstname+ "\", " +
+                        "\"lastname\" : \""+lastname+"\"}").log().all();
+        response = req.when().post(new URI(url));
+    }
+
+    @Then("se valida que el {string} y {string} hayan cambiado")
+    public void seValidaQueElYHayanCambiado(String firstname, String lastname) {
+        String nombre = response.then().extract().body().jsonPath().getString("firstname");
+        String apellido = response.then().extract().body().jsonPath().getString("lastname");
+        Assert.assertEquals(nombre,firstname);
+        Assert.assertEquals(apellido,lastname);
+
     }
 
 //    @Then("se guarda el nombre y apellido del booking creado")
