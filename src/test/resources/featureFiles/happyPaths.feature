@@ -1,7 +1,7 @@
 #language: en
 
 @TESTS
-  Feature:Dummy Rest API Functionality Scenarios
+  Feature:Happy Paths Booking
 
   @TEST1
   Scenario Outline: Obtener token
@@ -56,3 +56,12 @@
       Examples:
         | url      | responseMessage | firstname | lastname  |
         | /booking | 200             | James     | Rodriguez |
+
+    @TEST7
+    Scenario Outline: Eliminar booking por id
+      Given Obtener llamada a "<url>" con id a eliminar
+      When se valida otro codigo de respuesta"<responseMessage>"
+      Then se obtiene respuesta y se valida
+      Examples:
+        | url      | responseMessage |
+        | /booking | 201             |
