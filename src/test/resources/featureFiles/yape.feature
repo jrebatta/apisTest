@@ -47,3 +47,12 @@
       Examples:
         | url      | responseMessage |
         | /booking | 200             |
+
+    @TEST5
+    Scenario Outline: Obtener id booking por nombre y apellido
+      Given Obtener id booking "<url>" por nombre y apellido
+      When se valida el codigo de respuesta"<responseMessage>"
+      Then se obtiene el id y se valida con el obtenido previamente
+      Examples:
+        | url      | responseMessage |
+        | /booking | 200             |

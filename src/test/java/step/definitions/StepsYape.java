@@ -9,6 +9,7 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import utils.Excel;
@@ -111,16 +112,18 @@ public class StepsYape extends Excel {
     }
 
     @Then("se obtiene el id del booking creado y se guarda el nombre y apellido del booking creado")
-    public void seObtieneElIdDelBookingCreadoYSeGuardaElNombreYApellido() throws IOException {
-        String nombre = response.then().extract().body().jsonPath().getString("bookingid");
-        String bookid = response.then().extract().body().jsonPath().getJsonObject("firstname");
-        String apellido = response.then().extract().body().jsonPath().getJsonObject("lastname");
+    public void seObtieneElIdDelBookingCreadoYSeGuardaElNombreYApellido() throws IOException, JSONException {
+        String bookid = response.then().extract().body().jsonPath().getString("bookingid");
+        JSONObject bookingData = new JSONObject(response.then().extract().body().jsonPath().getJsonObject("booking").toString());
+        String nombre = bookingData.getString("firstname");
+        String apellido = bookingData.getString("lastname");
+        setCellValue("Hoja1",1,1,bookid);
         setCellValue("Hoja1",1,2,nombre);
         setCellValue("Hoja1",1,3,apellido);
-        setCellValue("Hoja1",1,1,bookid);
+        Assert.assertNotNull(bookid);
         Assert.assertNotNull(nombre);
         Assert.assertNotNull(apellido);
-        Assert.assertNotNull(bookid);
+
     }
 
     @Given("Obtener llamada a {string} con id")
